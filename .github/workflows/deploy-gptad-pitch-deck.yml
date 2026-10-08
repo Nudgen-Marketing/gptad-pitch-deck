@@ -1,0 +1,66 @@
+name: Validate and deploy GPTAd Pitch Deck
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'gptad-pitch-deck.html'
+      - 'one-pager.html'
+      - 'assets/**'
+      - 'scripts/**'
+      - '.github/workflows/deploy-gptad-pitch-deck.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'gptad-pitch-deck.html'
+      - 'one-pager.html'
+      - 'assets/**'
+      - 'scripts/**'
+      - '.github/workflows/deploy-gptad-pitch-deck.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gptad-pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Validate and package public site
+        run: python3 scripts/build-site.py
+      - name: Upload downloadable preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: gptad-pitch-deck-preview
+          path: site/
+          include-hidden-files: true
+          if-no-files-found: error
+      - name: Upload Pages artifact
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
