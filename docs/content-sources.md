@@ -16,3 +16,7 @@ Verified on **8 October 2026** against the live [GPTAd landing page](https://gpt
 No market-size forecasts, customer testimonials, revenue, funding amount, performance predictions, or guaranteed AI placements are included. Refresh these sources before changing product-status claims.
 
 GitHub Pages setup follows [GitHub's custom workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages). The build job is read-only; the deployment job alone receives Pages and OIDC write permissions.
+
+## Vietnamese localization
+
+The Vietnamese deck adapts the examples to a five-person design studio. Chị Lan is an illustrative persona; Gọn Việc and Nhịp Nhóm are fictional product names, not customer references or endorsements. The percentages remain invented illustration values. These localized examples do not change product availability, pricing, platform access, or independence claims.
