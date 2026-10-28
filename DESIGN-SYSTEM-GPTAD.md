@@ -12,7 +12,7 @@ Derived from the current GPTAd landing page (`landing-page/src/styles.css`), che
 | Green | `#087f5b` | Emphasis and primary CTA |
 | Green soft | `#edf6f1` | Intent cues and conversation bubbles |
 
-DM Sans variable (Latin, normal) is embedded in each HTML document. Its SIL Open Font License is retained in `assets/DM-Sans-OFL.txt`. The canonical GPTAd mark is embedded; the `PTAd.` wordmark completes the G supplied by the mark, matching the website.
+DM Sans variable (Latin, normal) is embedded in the English documents and used for the brand wordmark. The Vietnamese deck embeds Noto Sans variable with Latin, Latin Extended, and Vietnamese subsets so all accents render offline; its license is in `assets/Noto-Sans-OFL.txt`. The DM Sans SIL Open Font License is retained in `assets/DM-Sans-OFL.txt`. The canonical GPTAd mark is embedded; the `PTAd.` wordmark completes the G supplied by the mark, matching the website.
 
 Use spacious white layouts, large sentence-case headlines, subtle gray cards, and a single green emphasis per headline. Conversation bubbles, workflow cards, intent tables, illustrative bars, and ad concepts explain the product. Avoid decorative charts that imply measured performance.
 

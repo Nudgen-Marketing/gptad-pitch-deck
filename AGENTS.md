@@ -1,10 +1,11 @@
 # GPTAd Customer Pitch Deck
 
 ## Project
-English customer deck for GPTAd, following the static HTML conventions of the sibling Mermail pitch deck repository.
+English and Vietnamese customer decks for GPTAd, following the static HTML conventions of the sibling Mermail pitch deck repository.
 
 ## Canonical documents
 - `gptad-pitch-deck.html`: ten self-contained slides, with embedded logo and DM Sans font.
+- `gptad-pitch-deck-vi.html`: Vietnamese version of the ten-slide deck, with embedded Vietnamese fonts.
 - `one-pager.html`: self-contained printable A4 customer overview.
 - `DESIGN-SYSTEM-GPTAD.md`: brand tokens and presentation conventions.
 - `docs/content-sources.md`: evidence, product status, and claim boundaries.

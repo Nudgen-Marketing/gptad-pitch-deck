@@ -1,4 +1,4 @@
-/* Optional browser acceptance checks; no npm build is needed for the site. */
+/* Browser acceptance checks for both deck languages and the English overview. */
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -31,76 +31,80 @@ async function checkLayout(page, print = false) {
 }
 
 (async () => {
-  const browser = await chromium.launch({headless: true});
+  const browser = await chromium.launch({headless: true, ...(process.env.PLAYWRIGHT_CHANNEL ? {channel: process.env.PLAYWRIGHT_CHANNEL} : {})});
   try {
     const context = await browser.newContext({viewport:{width:1440,height:900}, offline:true});
     const page = await context.newPage();
     const browserErrors = [];
     page.on('pageerror', error => browserErrors.push(error.message));
-    const url = pathToFileURL(path.join(root, 'gptad-pitch-deck.html')).href;
-    await page.goto(url);
-    await page.evaluate(() => document.fonts.ready);
-    assert.equal(await page.locator('.slide:not([hidden])').count(), 1);
-    assert.equal(await page.locator('#previous').isDisabled(), true);
-    await page.keyboard.press('ArrowLeft');
-    assert.equal(await page.locator('#counter').innerText(), '01 / 10');
-    await page.keyboard.press('ArrowRight');
-    assert.equal(await page.locator('#counter').innerText(), '02 / 10');
-    await page.keyboard.press('PageDown');
-    assert.equal(await page.locator('#counter').innerText(), '03 / 10');
-    await page.keyboard.press('PageUp');
-    assert.equal(await page.locator('#counter').innerText(), '02 / 10');
-    await page.keyboard.press('End');
-    assert.equal(await page.locator('#next').isDisabled(), true);
-    await page.keyboard.press('ArrowRight');
-    assert.equal(await page.locator('#counter').innerText(), '10 / 10');
-    await page.keyboard.press('Home');
-    await page.locator('#next').click();
-    await page.locator('#previous').click();
-    assert.equal(await page.locator('#counter').innerText(), '01 / 10');
-    assert.equal(await page.locator('.slide:not([hidden]) a[href="https://cal.com/toannhu/30min"]').count(), 1);
-    assert.equal(await page.locator('.slide[hidden]:not([inert])').count(), 0);
-    await page.goto(url + '#slide-6');
-    assert.equal(await page.locator('#counter').innerText(), '06 / 10');
-    await page.goto(url + '#slide-999');
-    assert.equal(await page.locator('#counter').innerText(), '10 / 10');
-    await page.goto(url + '#slide-0');
-    assert.equal(await page.locator('#counter').innerText(), '01 / 10');
-    await page.emulateMedia({reducedMotion:'reduce'});
-    assert.equal(await page.locator('.active .content').evaluate(el => getComputedStyle(el).animationName), 'none');
-    for (const [width,height] of [[1920,1080],[1440,900],[1366,768],[1280,720],[1024,768],[768,1024],[390,844],[375,667]]) {
-      await page.setViewportSize({width,height});
-      for (let i=1; i<=10; i++) {
-        await page.evaluate(i => { location.hash = `slide-${i}`; }, i);
-        await page.waitForFunction(i => document.querySelector('.slide:not([hidden])').id === `slide-${i}`, i);
-        await checkLayout(page);
-      }
+    for (const [deck, language] of [['gptad-pitch-deck', 'en'], ['gptad-pitch-deck-vi', 'vi']]) {
+      await page.setViewportSize({width:1440,height:900});
+      const url = pathToFileURL(path.join(root, `${deck}.html`)).href;
+      await page.goto(url);
+      await page.evaluate(() => document.fonts.ready);
+      assert.equal(await page.locator('html').getAttribute('lang'), language);
+      assert.equal(await page.locator('.slide:not([hidden])').count(), 1);
+      assert.equal(await page.locator('#previous').isDisabled(), true);
+      await page.keyboard.press('ArrowLeft');
+      assert.equal(await page.locator('#counter').innerText(), '01 / 10');
+      await page.keyboard.press('ArrowRight');
+      assert.equal(await page.locator('#counter').innerText(), '02 / 10');
+      await page.keyboard.press('PageDown');
+      assert.equal(await page.locator('#counter').innerText(), '03 / 10');
+      await page.keyboard.press('PageUp');
+      assert.equal(await page.locator('#counter').innerText(), '02 / 10');
+      await page.keyboard.press('End');
+      assert.equal(await page.locator('#next').isDisabled(), true);
+      await page.keyboard.press('ArrowRight');
+      assert.equal(await page.locator('#counter').innerText(), '10 / 10');
       await page.keyboard.press('Home');
-      await page.screenshot({path:path.join(qa,`cover-${width}.png`),fullPage:true});
-      console.log(`PASS deck layout ${width}×${height}: all 10 slides`);
+      await page.locator('#next').click();
+      await page.locator('#previous').click();
+      assert.equal(await page.locator('#counter').innerText(), '01 / 10');
+      assert.equal(await page.locator('.slide:not([hidden]) a[href="https://cal.com/toannhu/30min"]').count(), 1);
+      assert.equal(await page.locator('.slide[hidden]:not([inert])').count(), 0);
+      await page.goto(url + '#slide-6');
+      assert.equal(await page.locator('#counter').innerText(), '06 / 10');
+      await page.goto(url + '#slide-999');
+      assert.equal(await page.locator('#counter').innerText(), '10 / 10');
+      await page.goto(url + '#slide-0');
+      assert.equal(await page.locator('#counter').innerText(), '01 / 10');
+      await page.emulateMedia({reducedMotion:'reduce'});
+      assert.equal(await page.locator('.active .content').evaluate(el => getComputedStyle(el).animationName), 'none');
+      for (const [width,height] of [[1920,1080],[1440,900],[1366,768],[1280,720],[1024,768],[768,1024],[390,844],[375,667]]) {
+        await page.setViewportSize({width,height});
+        for (let i=1; i<=10; i++) {
+          await page.evaluate(i => { location.hash = `slide-${i}`; }, i);
+          await page.waitForFunction(i => document.querySelector('.slide:not([hidden])').id === `slide-${i}`, i);
+          await checkLayout(page);
+        }
+        await page.keyboard.press('Home');
+        await page.screenshot({path:path.join(qa,`${deck}-cover-${width}.png`),fullPage:true});
+        console.log(`PASS ${deck} layout ${width}×${height}: all 10 slides`);
+      }
+      await page.setViewportSize({width:390,height:844});
+      await page.keyboard.press('Home');
+      const gesture = async (x1,y1,x2,y2) => {
+        await page.evaluate(({x1,y1,x2,y2}) => {
+          const el = document.querySelector('#deck');
+          el.dispatchEvent(new TouchEvent('touchstart', {touches:[new Touch({identifier:1,target:el,clientX:x1,clientY:y1})]}));
+          el.dispatchEvent(new TouchEvent('touchend', {changedTouches:[new Touch({identifier:1,target:el,clientX:x2,clientY:y2})]}));
+        }, {x1,y1,x2,y2});
+      };
+      await gesture(300,250,100,250);
+      assert.equal(await page.locator('#counter').innerText(),'02 / 10');
+      await gesture(100,250,300,250);
+      assert.equal(await page.locator('#counter').innerText(),'01 / 10');
+      await gesture(300,200,280,450);
+      assert.equal(await page.locator('#counter').innerText(),'01 / 10');
+      await page.setViewportSize({width:1440,height:900});
+      await page.setViewportSize({width:1123,height:794});
+      await page.emulateMedia({media:'print'});
+      assert.equal(await page.locator('.slide:visible').count(),10);
+      await checkLayout(page,true);
+      await page.pdf({path:path.join(pdf,`${deck}.pdf`),preferCSSPageSize:true,printBackground:true});
+      await page.emulateMedia({media:'screen'});
     }
-    await page.setViewportSize({width:390,height:844});
-    await page.keyboard.press('Home');
-    const gesture = async (x1,y1,x2,y2) => {
-      await page.evaluate(({x1,y1,x2,y2}) => {
-        const el = document.querySelector('#deck');
-        el.dispatchEvent(new TouchEvent('touchstart', {touches:[new Touch({identifier:1,target:el,clientX:x1,clientY:y1})]}));
-        el.dispatchEvent(new TouchEvent('touchend', {changedTouches:[new Touch({identifier:1,target:el,clientX:x2,clientY:y2})]}));
-      }, {x1,y1,x2,y2});
-    };
-    await gesture(300,250,100,250);
-    assert.equal(await page.locator('#counter').innerText(),'02 / 10');
-    await gesture(100,250,300,250);
-    assert.equal(await page.locator('#counter').innerText(),'01 / 10');
-    await gesture(300,200,280,450);
-    assert.equal(await page.locator('#counter').innerText(),'01 / 10');
-    await page.setViewportSize({width:1440,height:900});
-    await page.setViewportSize({width:1123,height:794});
-    await page.emulateMedia({media:'print'});
-    assert.equal(await page.locator('.slide:visible').count(),10);
-    await checkLayout(page,true);
-    await page.pdf({path:path.join(pdf,'gptad-pitch-deck.pdf'),preferCSSPageSize:true,printBackground:true});
-    await page.emulateMedia({media:'screen'});
     await page.goto(pathToFileURL(path.join(root,'one-pager.html')).href);
     await page.evaluate(() => document.fonts.ready);
     for (const [width,height] of [[1440,900],[768,1024],[390,844],[375,667]]) {
@@ -118,7 +122,7 @@ async function checkLayout(page, print = false) {
     await page.emulateMedia({media:'screen'});
     await page.screenshot({path:path.join(qa,'one-pager.png'),fullPage:true});
     assert.deepEqual(browserErrors,[]);
-    for (const [name,expected] of [['gptad-pitch-deck.pdf',10],['gptad-one-pager.pdf',1]]) {
+    for (const [name,expected] of [['gptad-pitch-deck.pdf',10],['gptad-pitch-deck-vi.pdf',10],['gptad-one-pager.pdf',1]]) {
       const count = (fs.readFileSync(path.join(pdf,name)).toString('latin1').match(/\/Type\s*\/Page\b/g) || []).length;
       assert.equal(count,expected, `${name} page count`);
       console.log(`PASS ${name}: ${count} printed pages`);

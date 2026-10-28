@@ -16,7 +16,7 @@ def main():
     if SITE.exists():
         shutil.rmtree(SITE)
     SITE.mkdir()
-    for name in ('gptad-pitch-deck.html', 'one-pager.html'):
+    for name in ('gptad-pitch-deck.html', 'gptad-pitch-deck-vi.html', 'one-pager.html'):
         shutil.copyfile(ROOT / name, SITE / name)
     shutil.copyfile(ROOT / 'gptad-pitch-deck.html', SITE / 'index.html')
     shutil.copytree(ROOT / 'assets', SITE / 'assets', dirs_exist_ok=True)
