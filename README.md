@@ -4,8 +4,8 @@ English and Vietnamese customer presentations for [GPTAd](https://gptad.io), a p
 
 | File / folder | Purpose |
 | --- | --- |
-| `gptad-pitch-deck.html` | Ten-slide interactive customer deck; works directly from disk. |
-| `gptad-pitch-deck-vi.html` | Vietnamese version of the ten-slide customer deck, with offline assets and print support. |
+| `gptad-pitch-deck.html` | Nine-slide interactive customer deck; works directly from disk. |
+| `gptad-pitch-deck-vi.html` | Vietnamese version of the nine-slide customer deck, with offline assets and print support. |
 | `one-pager.html` | Printable A4 customer overview. |
 | `assets/` | GPTAd brand assets, DM Sans and Noto Sans fonts, and font licenses. |
 | `DESIGN-SYSTEM-GPTAD.md` | Brand tokens and layout conventions. |
@@ -20,7 +20,7 @@ Open `gptad-pitch-deck.html` (English), `gptad-pitch-deck-vi.html` (Vietnamese),
 
 Use **← / →**, **Page Up / Page Down**, **Home / End**, swipe, or the on-screen arrows. A slide can be linked directly with `#slide-6`. On small screens, scroll vertically to read the active slide. The language link switches between English and Vietnamese. The final slide links to the English one-page overview.
 
-Use **Print / PDF** to print all ten slides as A4 landscape pages. Print the one-pager as A4 portrait. Set scale to 100%, enable background graphics, and disable browser headers/footers. Prepared PDFs are in `output/pdf/`; regenerate them when HTML changes.
+Use **Print / PDF** to print all nine slides as A4 landscape pages. Print the one-pager as A4 portrait. Set scale to 100%, enable background graphics, and disable browser headers/footers. Prepared PDFs are in `output/pdf/`; regenerate them when HTML changes.
 
 ## Validate and package
 
@@ -54,8 +54,7 @@ Browser checks run against both deck languages and the English overview. They co
 6. Intent research — Needs behind the prompt.
 7. Competitor insights — Clearly labeled illustrative visibility gaps.
 8. Ad studio — Two example message angles.
-9. Early-access expectations — Product status, pricing, and platform limits.
-10. Invitation — Demo, potential pilot, and design-partner introductions.
+9. Invitation — Demo, potential pilot, and design-partner introductions.
 
 ## GitHub Actions and Pages
 

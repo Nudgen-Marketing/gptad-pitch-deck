@@ -41,11 +41,13 @@ def validate(path, count, language='en'):
     assert any(t == 'meta' and a.get('property') == 'og:title' for t, a in doc.tags)
     text = ' '.join(doc.text).lower()
     disclosures = {
-        'en': ('in development', 'pricing', 'illustrative', 'not affiliated', 'does not publish campaigns'),
-        'vi': ('đang phát triển', 'giá', 'minh họa', 'không liên kết', 'không hỗ trợ xuất bản chiến dịch'),
+        'en': ('in development', 'illustrative', 'not affiliated', 'does not publish campaigns'),
+        'vi': ('đang phát triển', 'minh họa', 'không liên kết', 'không hỗ trợ xuất bản chiến dịch'),
     }
     for phrase in disclosures[language]:
         assert phrase in text, f'Missing disclosure: {phrase}'
+    if not count:
+        assert 'pricing' in text, 'Missing pricing disclosure'
     assert '@media print' in source and '@page' in source, 'Missing print layout'
     assert 'data:image/png;base64,' in source and 'data:font/woff2;base64,' in source, 'Core assets must be embedded'
     for tag, attrs in doc.tags:
@@ -79,8 +81,8 @@ def validate(path, count, language='en'):
 
 def main():
     root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT
-    validate(root / 'gptad-pitch-deck.html', 10)
-    validate(root / 'gptad-pitch-deck-vi.html', 10, 'vi')
+    validate(root / 'gptad-pitch-deck.html', 9)
+    validate(root / 'gptad-pitch-deck-vi.html', 9, 'vi')
     validate(root / 'one-pager.html', 0)
     if root != ROOT:
         assert (root / 'index.html').read_bytes() == (root / 'gptad-pitch-deck.html').read_bytes()
