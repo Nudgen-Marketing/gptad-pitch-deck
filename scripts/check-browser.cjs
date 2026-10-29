@@ -43,6 +43,35 @@ async function checkLayout(page, print = false) {
       await page.goto(url);
       await page.evaluate(() => document.fonts.ready);
       assert.equal(await page.locator('html').getAttribute('lang'), language);
+      await page.locator('.slide:not([hidden]) .eyebrow').click();
+      assert.equal(await page.locator('#counter').innerText(), '02 / 10');
+      await page.keyboard.press('Home');
+      await page.locator('.slide:not([hidden]) .title').evaluate(el => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        el.click();
+      });
+      assert.equal(await page.locator('#counter').innerText(), '01 / 10');
+      await page.evaluate(() => window.getSelection().removeAllRanges());
+      await page.locator('.slide:not([hidden]) a').first().evaluate(el => {
+        el.addEventListener('click', event => event.preventDefault(), {once:true});
+        el.click();
+      });
+      assert.equal(await page.locator('#counter').innerText(), '01 / 10');
+      await page.mouse.move(700, 400);
+      await page.mouse.wheel(0, 120);
+      await page.waitForTimeout(100);
+      assert.equal(await page.locator('#counter').innerText(), '02 / 10');
+      await page.mouse.wheel(0, 120);
+      await page.waitForTimeout(100);
+      assert.equal(await page.locator('#counter').innerText(), '02 / 10');
+      await page.waitForTimeout(800);
+      await page.mouse.wheel(0, -120);
+      await page.waitForTimeout(100);
+      assert.equal(await page.locator('#counter').innerText(), '01 / 10');
+
       assert.equal(await page.locator('.slide:not([hidden])').count(), 1);
       assert.equal(await page.locator('#previous').isDisabled(), true);
       await page.keyboard.press('ArrowLeft');
@@ -82,6 +111,17 @@ async function checkLayout(page, print = false) {
         await page.screenshot({path:path.join(qa,`${deck}-cover-${width}.png`),fullPage:true});
         console.log(`PASS ${deck} layout ${width}×${height}: all 10 slides`);
       }
+      await page.keyboard.press('Home');
+      await page.waitForTimeout(800);
+      await page.setViewportSize({width:390,height:400});
+      await page.mouse.move(200,200);
+      await page.mouse.wheel(0,100);
+      await page.waitForTimeout(50);
+      assert.equal(await page.locator('#counter').innerText(), '01 / 10');
+      await page.evaluate(() => window.scrollTo(0, document.scrollingElement.scrollHeight));
+      await page.mouse.wheel(0,100);
+      await page.waitForTimeout(50);
+      assert.equal(await page.locator('#counter').innerText(), '01 / 10');
       await page.setViewportSize({width:390,height:844});
       await page.keyboard.press('Home');
       const gesture = async (x1,y1,x2,y2) => {
